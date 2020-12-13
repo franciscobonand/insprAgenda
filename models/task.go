@@ -123,7 +123,55 @@ func ShowTasksByStatus(statusList ...int) {
 			fmt.Println("No tasks with this status")
 		}
 	}
+	fmt.Println("")
 }
+
+// UpdateTask can move the task on the board
+// or uptade it's title/description (yet to be implemented)
+func UpdateTask(taskID int, statusUpdate, remove bool) {
+	db := db.ConnectWithDB()
+	id := strconv.Itoa(taskID)
+
+	if statusUpdate {
+		if remove {
+			updateTaskDB, err := db.Prepare("update tasks set status=3 where id=" + id)
+			if err != nil {
+				panic("Error when updating task:" + err.Error())
+			}
+			updateTaskDB.Exec()
+			fmt.Println("Task (ID:" + id + ") has been removed!")
+		} else {
+			var statusNow int
+			task, err := db.Query("select status from tasks where id=" + id)
+			if err != nil {
+				panic("Error while selecting task from DB:" + err.Error())
+			}
+
+			task.Next()
+			err = task.Scan(&statusNow)
+			if err != nil {
+				panic("Error while getting task's status:" + err.Error())
+			}
+
+			var newStatus string
+			if statusNow == 1 {
+				newStatus = strconv.Itoa(statusNow + 1)
+			} else {
+				newStatus = strconv.Itoa(statusNow + 2)
+			}
+			updateTaskDB, err := db.Prepare("update tasks set status=" + newStatus + " where id=" + id)
+			if err != nil {
+				panic("Error when updating task:" + err.Error())
+			}
+			updateTaskDB.Exec()
+			fmt.Println("Task's (ID:" + id + ") status has been updated!")
+		}
+	}
+
+	defer db.Close()
+}
+
+// Auxiliar functions:
 
 func printTaskInfo(task Task) {
 	id := strconv.Itoa(task.ID)

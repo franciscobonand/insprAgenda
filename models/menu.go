@@ -36,7 +36,7 @@ func DisplayManagementMenu() {
 		"Select desired action:\n" +
 		"1- Create task\n" +
 		"2- Remove task\n" +
-		"3- Update task\n" +
+		"3- Update task status\n" +
 		"4- Show task details\n" +
 		"Type anything else to return to the Main Menu\n")
 }

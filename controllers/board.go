@@ -66,10 +66,9 @@ func MoveTaskOnBoard(remove bool) {
 	var taskID int
 	if remove {
 		fmt.Println("Inform the ID of the task to be removed:")
-		fmt.Scan(&taskID)
 	} else {
 		fmt.Println("Inform the ID of the task to be updated:")
-		fmt.Scan(&taskID)
 	}
-	// Still have to call the function that makes the update (undergoing implementation)
+	fmt.Scan(&taskID)
+	models.UpdateTask(taskID, true, remove)
 }

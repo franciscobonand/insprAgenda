@@ -15,8 +15,8 @@ func HandleManagementChoice() {
 		controllers.GenerateNewTask()
 	case 2: // Remove
 		controllers.MoveTaskOnBoard(true)
-	case 3: // Update
-
+	case 3: // Update status
+		controllers.MoveTaskOnBoard(false)
 	case 4: // Show details
 
 	default:
