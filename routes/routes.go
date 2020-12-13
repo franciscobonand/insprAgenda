@@ -18,7 +18,7 @@ func HandleManagementChoice() {
 	case 3: // Update status
 		controllers.MoveTaskOnBoard(false)
 	case 4: // Show details
-
+		controllers.ShowTaskDetails()
 	default:
 		fmt.Println("Returning to Main Menu...")
 	}

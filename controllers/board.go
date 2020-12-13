@@ -72,3 +72,14 @@ func MoveTaskOnBoard(remove bool) {
 	fmt.Scan(&taskID)
 	models.UpdateTask(taskID, true, remove)
 }
+
+// ShowTaskDetails lists tasks and select the one to have its detals shown
+func ShowTaskDetails() {
+	models.ShowTasksByStatus(1, 2, 3, 4)
+
+	var taskID int
+	fmt.Println("Inform the ID of the task to display it's details:")
+	fmt.Scan(&taskID)
+
+	models.DisplayTask(taskID)
+}

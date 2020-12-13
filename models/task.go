@@ -171,6 +171,44 @@ func UpdateTask(taskID int, statusUpdate, remove bool) {
 	defer db.Close()
 }
 
+// DisplayTask gets task with informed ID and display it's information
+func DisplayTask(taskID int) {
+	db := db.ConnectWithDB()
+	id := strconv.Itoa(taskID)
+
+	task, err := db.Query("select * from tasks where id=" + id)
+	if err != nil {
+		panic("Error while selecting task from DB:" + err.Error())
+	}
+
+	task.Next()
+
+	var ID, priority, status, effort int
+	var title, description string
+	var deadline, workstart, workend, creationdate, lastupdate time.Time
+	var dependency []uint8
+
+	err = task.Scan(&ID, &priority, &status, &title, &description, &dependency, &deadline,
+		&workstart, &workend, &creationdate, &lastupdate, &effort)
+	if err != nil {
+		panic("Error while scanning DB:" + err.Error())
+	}
+
+	strPriority := strconv.Itoa(priority)
+	strTimeEstimate := strconv.Itoa(effort)
+	strStatus := []string{"To Do", "Working", "Closed", "Done"}
+	timeSpent := getTimeSpent(workstart, workend)
+
+	fmt.Println("ID: " + id + " | Title: " + title +
+		"\nDescription: " + description +
+		"\nStatus: " + strStatus[status-1] +
+		"\nPriority: " + strPriority + " | Time estimate: " + strTimeEstimate +
+		"\nDeadline: " + deadline.Format("02/01/2006") +
+		"\nCreation date: " + creationdate.Format("02/01/2006") +
+		"\nLast update: " + lastupdate.Format("02/01/2006") +
+		"\nTime spent on task: " + timeSpent)
+}
+
 // Auxiliar functions:
 
 func printTaskInfo(task Task) {
@@ -178,4 +216,18 @@ func printTaskInfo(task Task) {
 	priority := strconv.Itoa(task.Priority)
 	fmt.Println("ID: " + id + " | Title: " + task.Title +
 		" | Priority: " + priority + " | Deadline: " + task.Deadline.Format("02/01/2006"))
+}
+
+func getTimeSpent(start, end time.Time) string {
+	startYear, _, _ := start.Date()
+	if startYear != 1 {
+		endYear, _, _ := end.Date()
+		if endYear != 1 {
+			duration := end.Sub(start)
+			return duration.String()
+		}
+		duration := (time.Now()).Sub(start)
+		return duration.String()
+	}
+	return "Task hasn't been started"
 }
