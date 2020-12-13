@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"insprTaskScheduler/insprAgenda/models"
+	"insprTaskScheduler/insprAgenda/routes"
 	"os"
 )
 
@@ -16,15 +17,15 @@ func main() {
 
 		switch userCommand {
 		case 1:
-			models.DisplayBoardsMenu()
+			models.DisplayVisualizationMenu()
 		case 2:
-			models.DisplayTaskManagerMenu()
+			models.DisplayManagementMenu()
+			routes.HandleManagementChoice()
 		case 3:
 			models.DisplayCalendar()
 		case 0:
 			fmt.Println("Shutting down...")
 			os.Exit(0)
-
 		default:
 			fmt.Println("Unknown command, please try again!")
 		}

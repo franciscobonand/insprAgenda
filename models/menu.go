@@ -2,32 +2,43 @@ package models
 
 import (
 	"fmt"
-	"insprTaskScheduler/insprAgenda/controllers"
 )
 
 // InitiateTaskManager prints a welcoming message to the user
 func InitiateTaskManager() {
 	fmt.Println("Brief description of the scheduler")
-	controllers.SetupBoardEnviroment()
 }
 
 // DisplayMainMenu displays the main actions a user can do
 func DisplayMainMenu() {
-	fmt.Println("Show main menu, where you can:\n" +
-		"1-See Boards\n" +
-		"2-Manage Boards\n" +
-		"3-Show callendar of deadline/time estimation\n" +
-		"0-Exit\n")
+	fmt.Println("\nMain Menu\n" +
+		"Please select one of the following:\n" +
+		"1- Visualize task board\n" +
+		"2- Manage tasks\n" +
+		"3- Show deliveries calendar\n" +
+		"0- Exit\n")
 }
 
-// DisplayBoardsMenu displays options for visualizing the board
-func DisplayBoardsMenu() {
-	fmt.Println("Show listing options (priority/deadline/added time)")
+// DisplayVisualizationMenu displays options for visualizing the board
+func DisplayVisualizationMenu() {
+	fmt.Println("\nVisualization Menu\n" +
+		"Tasks will be separetad by their status\n" +
+		"Select desired filter:\n" +
+		"1- By Deadline\n" +
+		"2- By Priority\n" +
+		"3- By Added time\n" +
+		"Type anything else to return to the Main Menu\n")
 }
 
-// DisplayTaskManagerMenu displays main actions to manage the board
-func DisplayTaskManagerMenu() {
-	fmt.Println("Display menu for creating, removing, moving and showing task details")
+// DisplayManagementMenu displays main actions to manage the board
+func DisplayManagementMenu() {
+	fmt.Println("\nManagement Menu\n" +
+		"Select desired action:\n" +
+		"1- Create task\n" +
+		"2- Remove task\n" +
+		"3- Update task\n" +
+		"4- Show task details\n" +
+		"Type anything else to return to the Main Menu\n")
 }
 
 // DisplayCalendar shows a calendar with active task's deadlines and estimated conclusion time

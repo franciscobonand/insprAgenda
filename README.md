@@ -23,15 +23,15 @@
 
 - Dependency ([int])
 
-- Status (string)
+- Status (int)
 
-  - To Do
+  - To Do (1)
 
-  - Working
+  - Working (2)
 
-  - Closed
+  - Closed (3)
 
-  - Done
+  - Done (4)
 
 - Work start date (date)
 
@@ -77,10 +77,6 @@
 
   - Options: By priority, By deadline, By Added time
 
-- MoveOnBoard
-
-  - Params: (ID, Status)
-
 - Board management menu
 
-  - Options: Create task, Remove task, Move task, Show task details
+  - Options: Create task, Remove task, Update task, Show task details
