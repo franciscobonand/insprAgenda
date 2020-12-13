@@ -60,6 +60,7 @@ func GenerateNewTask() {
 // MoveTaskOnBoard lists tasks and select the one to have it's status updated
 func MoveTaskOnBoard(remove bool) {
 	fmt.Println("Active tasks:")
+	fmt.Println("")
 	models.ShowTasksByStatus(1, 2)
 
 	var taskID int
