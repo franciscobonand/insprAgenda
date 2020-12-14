@@ -153,13 +153,15 @@ func UpdateTask(taskID int, statusUpdate, remove bool) {
 				panic("Error while getting task's status:" + err.Error())
 			}
 
-			var newStatus string
+			var newStatus, query string
 			if statusNow == 1 {
 				newStatus = strconv.Itoa(statusNow + 1)
+				query = "update tasks set status=" + newStatus + ", workstart='" + time.Now().Format("2006-01-02 15:04:05") + "' where id=" + id
 			} else {
 				newStatus = strconv.Itoa(statusNow + 2)
+				query = "update tasks set status=" + newStatus + ", workend='" + time.Now().Format("2006-01-02 15:04:05") + "' where id=" + id
 			}
-			updateTaskDB, err := db.Prepare("update tasks set status=" + newStatus + " where id=" + id)
+			updateTaskDB, err := db.Prepare(query)
 			if err != nil {
 				panic("Error when updating task:" + err.Error())
 			}
@@ -200,12 +202,12 @@ func DisplayTask(taskID int) {
 	timeSpent := getTimeSpent(workstart, workend)
 
 	fmt.Println("ID: " + id + " | Title: " + title +
-		"\nDescription: " + description +
-		"\nStatus: " + strStatus[status-1] +
+		"Description: " + description +
+		"Status: " + strStatus[status-1] +
 		"\nPriority: " + strPriority + " | Time estimate: " + strTimeEstimate +
 		"\nDeadline: " + deadline.Format("02/01/2006") +
 		"\nCreation date: " + creationdate.Format("02/01/2006") +
-		"\nLast update: " + lastupdate.Format("02/01/2006") +
+		// "\nLast update: " + lastupdate.Format("02/01/2006") +
 		"\nTime spent on task: " + timeSpent)
 }
 
@@ -219,14 +221,16 @@ func printTaskInfo(task Task) {
 }
 
 func getTimeSpent(start, end time.Time) string {
+	startEditTimezone := start.Add(time.Hour * 3)
 	startYear, _, _ := start.Date()
+
 	if startYear != 1 {
 		endYear, _, _ := end.Date()
 		if endYear != 1 {
 			duration := end.Sub(start)
 			return duration.String()
 		}
-		duration := (time.Now()).Sub(start)
+		duration := (time.Now()).Sub(startEditTimezone)
 		return duration.String()
 	}
 	return "Task hasn't been started"
