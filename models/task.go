@@ -129,7 +129,7 @@ func ShowTasksByStatus(filter string, statusList ...int) {
 	fmt.Println("")
 }
 
-// UpdateTask can move the task on the board
+// UpdateTask can move the task on the board if it doesn't have pendent dependency
 // or uptade it's title/description (yet to be implemented)
 func UpdateTask(taskID int, statusUpdate, remove bool) {
 	db := db.ConnectWithDB()
@@ -154,23 +154,31 @@ func UpdateTask(taskID int, statusUpdate, remove bool) {
 			task.Next()
 			err = task.Scan(&statusNow, &dependency)
 			if err != nil {
-				panic("Error while getting task's status:" + err.Error())
+				panic("Error while getting task status:" + err.Error())
 			}
 
 			var newStatus, query string
+			var hasDependency bool
 			if statusNow == 1 {
+				hasDependency = false
 				newStatus = strconv.Itoa(statusNow + 1)
 				query = "update tasks set status=" + newStatus + ", workstart='" + time.Now().Format("2006-01-02 15:04:05") + "' where id=" + id
 			} else {
+				hasDependency = checkForDependency(dependency)
 				newStatus = strconv.Itoa(statusNow + 2)
 				query = "update tasks set status=" + newStatus + ", workend='" + time.Now().Format("2006-01-02 15:04:05") + "' where id=" + id
 			}
-			updateTaskDB, err := db.Prepare(query)
-			if err != nil {
-				panic("Error when updating task:" + err.Error())
+
+			if hasDependency {
+				fmt.Println("Task (ID:" + id + ") can't be concluded because it depends on another task (ID:" + dependency + ")")
+			} else {
+				updateTaskDB, err := db.Prepare(query)
+				if err != nil {
+					panic("Error when updating task:" + err.Error())
+				}
+				updateTaskDB.Exec()
+				fmt.Println("Task's (ID:" + id + ") status has been updated!")
 			}
-			updateTaskDB.Exec()
-			fmt.Println("Task's (ID:" + id + ") status has been updated!")
 		}
 	}
 
@@ -249,4 +257,27 @@ func generateQuery(filter, statusList string) string {
 		return "select * from tasks where status in (" + statusList + ") order by creationdate asc"
 	}
 	return "select * from tasks where status in (" + statusList + ")"
+}
+
+func checkForDependency(dependency string) bool {
+	if dependency != "0" {
+		var status int
+		db := db.ConnectWithDB()
+		task, err := db.Query("select status from tasks where id=" + dependency)
+		if err != nil {
+			panic("Error while selecting task from DB:" + err.Error())
+		}
+
+		task.Next()
+		err = task.Scan(&status)
+		if err != nil {
+			panic("Error while getting task status:" + err.Error())
+		}
+
+		if status < 3 {
+			return true
+		}
+		return false
+	}
+	return false
 }
