@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// GenerateNewTask initializes a new Task instance and send it to the DB
+// GenerateNewTask gets input for a new Task and send it to be created in the DB
 func GenerateNewTask() {
 	var title, description, deadline, dependency string
 	var priority, timeEstimate, haveDependencies int
@@ -33,7 +33,7 @@ func GenerateNewTask() {
 	fmt.Println("Task priority (1 to 10):")
 	fmt.Scan(&priority)
 
-	fmt.Println("Estimated time for task conclusion (in hours):")
+	fmt.Println("Estimated time for task conclusion (in hours - whole number):")
 	fmt.Scan(&timeEstimate)
 
 	fmt.Println("Task deadline (dd/MM/yyyy):")
