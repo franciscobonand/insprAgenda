@@ -37,11 +37,13 @@ func CreateTask(title, description string, priority, timeEstimate int, deadline 
 
 // ShowTasksByStatus recieves a list of status and displays all tasks
 // with those status
-func ShowTasksByStatus(statusList ...int) {
+func ShowTasksByStatus(filter string, statusList ...int) {
 	statusStr := strings.Trim(strings.Replace(fmt.Sprint(statusList), " ", ",", -1), "[]")
+	query := generateQuery(filter, statusStr)
+
 	db := db.ConnectWithDB()
 
-	tasks, err := db.Query("select * from tasks where status in (" + statusStr + ")")
+	tasks, err := db.Query(query)
 	if err != nil {
 		panic("Error while selecting tasks from DB:" + err.Error())
 	}
@@ -204,7 +206,7 @@ func DisplayTask(taskID int) {
 	fmt.Println("ID: " + id + " | Title: " + title +
 		"Description: " + description +
 		"Status: " + strStatus[status-1] +
-		"\nPriority: " + strPriority + " | Time estimate: " + strTimeEstimate +
+		"\nPriority: " + strPriority + " | Time estimate: " + strTimeEstimate + "h" +
 		"\nDeadline: " + deadline.Format("02/01/2006") +
 		"\nCreation date: " + creationdate.Format("02/01/2006") +
 		// "\nLast update: " + lastupdate.Format("02/01/2006") +
@@ -217,7 +219,8 @@ func printTaskInfo(task Task) {
 	id := strconv.Itoa(task.ID)
 	priority := strconv.Itoa(task.Priority)
 	fmt.Println("ID: " + id + " | Title: " + task.Title +
-		" | Priority: " + priority + " | Deadline: " + task.Deadline.Format("02/01/2006"))
+		" | Priority: " + priority + " | Deadline: " + task.Deadline.Format("02/01/2006") +
+		" | Created: " + task.CreationDate.Format("02/01/2006"))
 }
 
 func getTimeSpent(start, end time.Time) string {
@@ -234,4 +237,15 @@ func getTimeSpent(start, end time.Time) string {
 		return duration.String()
 	}
 	return "Task hasn't been started"
+}
+
+func generateQuery(filter, statusList string) string {
+	if filter == "dl" {
+		return "select * from tasks where status in (" + statusList + ") order by deadline asc"
+	} else if filter == "prt" {
+		return "select * from tasks where status in (" + statusList + ") order by priority desc"
+	} else if filter == "at" {
+		return "select * from tasks where status in (" + statusList + ") order by creationdate asc"
+	}
+	return "select * from tasks where status in (" + statusList + ")"
 }

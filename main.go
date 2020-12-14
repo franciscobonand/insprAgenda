@@ -18,6 +18,7 @@ func main() {
 		switch userCommand {
 		case 1:
 			models.DisplayVisualizationMenu()
+			routes.HandleVisualizationChoice()
 		case 2:
 			models.DisplayManagementMenu()
 			routes.HandleManagementChoice()

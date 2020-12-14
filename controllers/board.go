@@ -61,7 +61,7 @@ func GenerateNewTask() {
 func MoveTaskOnBoard(remove bool) {
 	fmt.Println("Active tasks:")
 	fmt.Println("")
-	models.ShowTasksByStatus(1, 2)
+	models.ShowTasksByStatus("none", 1, 2)
 
 	var taskID int
 	if remove {
@@ -75,11 +75,25 @@ func MoveTaskOnBoard(remove bool) {
 
 // ShowTaskDetails lists tasks and select the one to have its detals shown
 func ShowTaskDetails() {
-	models.ShowTasksByStatus(1, 2, 3, 4)
+	models.ShowTasksByStatus("none", 1, 2, 3, 4)
 
 	var taskID int
 	fmt.Println("Inform the ID of the task to display it's details:")
 	fmt.Scan(&taskID)
 
 	models.DisplayTask(taskID)
+}
+
+// ShowTasksByFilter tell method ShowTasksByStatus which filter to use
+func ShowTasksByFilter(filterOption int) {
+	switch filterOption {
+	case 1:
+		models.ShowTasksByStatus("dl", 1, 2, 3, 4)
+	case 2:
+		models.ShowTasksByStatus("prt", 1, 2, 3, 4)
+	case 3:
+		models.ShowTasksByStatus("at", 1, 2, 3, 4)
+	default:
+		fmt.Println("This filter doesn't exist")
+	}
 }
