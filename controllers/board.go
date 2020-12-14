@@ -12,8 +12,8 @@ import (
 
 // GenerateNewTask initializes a new Task instance and send it to the DB
 func GenerateNewTask() {
-	var title, description, deadline string
-	var priority, timeEstimate int
+	var title, description, deadline, dependency string
+	var priority, timeEstimate, haveDependencies int
 
 	input := bufio.NewReader(os.Stdin)
 	input.ReadString('\n')
@@ -39,6 +39,16 @@ func GenerateNewTask() {
 	fmt.Println("Task deadline (dd/MM/yyyy):")
 	fmt.Scan(&deadline)
 
+	fmt.Println("Does this task have dependencies? (1-yes/2-no)")
+	fmt.Scan(&haveDependencies)
+	if haveDependencies == 1 {
+		fmt.Println("List of active tasks:")
+		models.ShowTasksByStatus("none", 1, 2)
+		fmt.Println("")
+		fmt.Println("Insert ID of task depended on:")
+		fmt.Scan(&dependency)
+	}
+
 	deadlineInfo := strings.Split(deadline, "/")
 	deadlineDay, errDay := strconv.Atoi(deadlineInfo[0])
 	deadlineMonth, errMonth := strconv.Atoi(deadlineInfo[1])
@@ -54,7 +64,7 @@ func GenerateNewTask() {
 	}
 	deadlineDate := time.Date(deadlineYear, time.Month(deadlineMonth), deadlineDay, 12, 0, 0, 0, time.UTC)
 
-	models.CreateTask(title, description, priority, timeEstimate, deadlineDate)
+	models.CreateTask(title, description, priority, timeEstimate, deadlineDate, dependency)
 }
 
 // MoveTaskOnBoard lists tasks and select the one to have it's status updated

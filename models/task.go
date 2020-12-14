@@ -12,14 +12,16 @@ import (
 // Task field composition
 type Task struct {
 	ID, Priority, Status, TimeEstimate                     int
-	Title, Description                                     string
-	Dependency                                             []int
+	Title, Description, Dependency                         string
 	Deadline, WorkStart, WorkEnd, CreationDate, LastUpdate time.Time
 }
 
 // CreateTask inserts task into DB
-func CreateTask(title, description string, priority, timeEstimate int, deadline time.Time) {
+func CreateTask(title, description string, priority, timeEstimate int, deadline time.Time, dependency string) {
 	creationDate := time.Now()
+	if dependency == "" {
+		dependency = "0"
+	}
 
 	db := db.ConnectWithDB()
 	dbColumns := "priority, status, title, description, dependency, deadline, " +
@@ -30,7 +32,7 @@ func CreateTask(title, description string, priority, timeEstimate int, deadline 
 		panic(err.Error())
 	}
 
-	insertIntoDB.Exec(priority, 1, title, description, "{0}", deadline, time.Time{}, time.Time{}, creationDate, creationDate, timeEstimate)
+	insertIntoDB.Exec(priority, 1, title, description, dependency, deadline, time.Time{}, time.Time{}, creationDate, creationDate, timeEstimate)
 	fmt.Println("A new task was created!")
 	defer db.Close()
 }
@@ -55,9 +57,8 @@ func ShowTasksByStatus(filter string, statusList ...int) {
 
 	for tasks.Next() {
 		var ID, priority, status, effort int
-		var title, description string
+		var title, description, dependency string
 		var deadline, workstart, workend, creationdate, lastupdate time.Time
-		var dependency []uint8
 
 		err = tasks.Scan(&ID, &priority, &status, &title, &description, &dependency, &deadline,
 			&workstart, &workend, &creationdate, &lastupdate, &effort)
@@ -144,13 +145,14 @@ func UpdateTask(taskID int, statusUpdate, remove bool) {
 			fmt.Println("Task (ID:" + id + ") has been removed!")
 		} else {
 			var statusNow int
-			task, err := db.Query("select status from tasks where id=" + id)
+			var dependency string
+			task, err := db.Query("select status, dependency from tasks where id=" + id)
 			if err != nil {
 				panic("Error while selecting task from DB:" + err.Error())
 			}
 
 			task.Next()
-			err = task.Scan(&statusNow)
+			err = task.Scan(&statusNow, &dependency)
 			if err != nil {
 				panic("Error while getting task's status:" + err.Error())
 			}
@@ -188,9 +190,8 @@ func DisplayTask(taskID int) {
 	task.Next()
 
 	var ID, priority, status, effort int
-	var title, description string
+	var title, description, dependency string
 	var deadline, workstart, workend, creationdate, lastupdate time.Time
-	var dependency []uint8
 
 	err = task.Scan(&ID, &priority, &status, &title, &description, &dependency, &deadline,
 		&workstart, &workend, &creationdate, &lastupdate, &effort)
