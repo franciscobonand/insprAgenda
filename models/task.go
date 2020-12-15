@@ -34,7 +34,7 @@ func CreateTask(title, description string, priority, timeEstimate int, deadline 
 	}
 
 	insertIntoDB.Exec(priority, 1, title, description, dependency, deadline, time.Time{}, time.Time{}, creationDate, creationDate, timeEstimate)
-	fmt.Println("A new task was created!")
+	fmt.Println("\nA new task was created!")
 	defer db.Close()
 }
 
@@ -103,7 +103,7 @@ func UpdateTask(taskID int, statusUpdate, remove bool) {
 					panic("Error when updating task:" + err.Error())
 				}
 				updateTaskDB.Exec()
-				fmt.Println("Task's (ID:" + id + ") status has been updated!")
+				fmt.Println("Task (ID:" + id + ") status has been updated!")
 			}
 		}
 	}
@@ -138,7 +138,7 @@ func DisplayTask(taskID int) {
 	strStatus := []string{"To Do", "Working", "Closed", "Done"}
 	timeSpent := getTimeSpent(workstart, workend)
 
-	fmt.Println("ID: " + id + " | Title: " + title +
+	fmt.Println("\nID: " + id + " | Title: " + title +
 		"Description: " + description +
 		"Status: " + strStatus[status-1] +
 		"\nPriority: " + strPriority + " | Time estimate: " + strTimeEstimate + "h" +
@@ -310,7 +310,7 @@ func printDBRows(tasks *sql.Rows, statusList []int) {
 	}
 
 	if sort.SearchInts(statusList, 1) < len(statusList) {
-		fmt.Println("TO DO:")
+		fmt.Println("\nTO DO:")
 		if len(toDoTasks) > 0 {
 			for _, item := range toDoTasks {
 				printTaskInfo(item)
@@ -320,7 +320,7 @@ func printDBRows(tasks *sql.Rows, statusList []int) {
 		}
 	}
 	if sort.SearchInts(statusList, 2) < len(statusList) {
-		fmt.Println("WORKING:")
+		fmt.Println("\nWORKING:")
 		if len(workingTasks) > 0 {
 			for _, item := range workingTasks {
 				printTaskInfo(item)
@@ -330,7 +330,7 @@ func printDBRows(tasks *sql.Rows, statusList []int) {
 		}
 	}
 	if sort.SearchInts(statusList, 3) < len(statusList) {
-		fmt.Println("CLOSED:")
+		fmt.Println("\nCLOSED:")
 		if len(closedTasks) > 0 {
 			for _, item := range closedTasks {
 				printTaskInfo(item)
@@ -340,7 +340,7 @@ func printDBRows(tasks *sql.Rows, statusList []int) {
 		}
 	}
 	if sort.SearchInts(statusList, 4) < len(statusList) {
-		fmt.Println("DONE:")
+		fmt.Println("\nDONE:")
 		if len(doneTasks) > 0 {
 			for _, item := range doneTasks {
 				printTaskInfo(item)

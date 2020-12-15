@@ -28,8 +28,8 @@ func main() {
 		case 3:
 			models.DisplayFilterMenu()
 			routes.HandleFilterChoice()
-		case 4:
-			models.DisplayCalendar()
+		// case 4:
+		// 	models.DisplayCalendar()
 		case 0:
 			fmt.Println("Shutting down...")
 			os.Exit(0)

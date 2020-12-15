@@ -37,10 +37,15 @@ func GenerateNewTask() {
 
 	fmt.Println("Estimated time for task conclusion (in hours - integer):")
 	fmt.Scan(&timeEstimate)
+	invalidTimeEstimate := timeEstimate < 1
+	for invalidTimeEstimate {
+		fmt.Println("Invalid estimated time. Insert integer that represents number of hours:")
+		fmt.Scan(&timeEstimate)
+		invalidTimeEstimate = timeEstimate < 1
+	}
 
 	fmt.Println("Task deadline (dd/MM/yyyy):")
-	deadline := getValidDeadline()
-	fmt.Scan(&deadline)
+	deadline := getValidDate()
 
 	fmt.Println("Does this task have dependencies? (1-yes/2-no)")
 	fmt.Scan(&haveDependencies)
@@ -74,18 +79,32 @@ func GenerateNewTask() {
 
 // MoveTaskOnBoard lists tasks and select the one to have it's status updated
 func MoveTaskOnBoard(remove bool) {
-	fmt.Println("Active tasks:")
-	fmt.Println("")
-	models.ShowTasksByStatus("none", 1, 2)
+	validIDs := models.GetActiveTaskIDs()
 
-	var taskID int
-	if remove {
-		fmt.Println("Inform the ID of the task to be removed:")
+	if len(validIDs) != 0 {
+		fmt.Println("List of active tasks:")
+		fmt.Println("")
+		models.ShowTasksByStatus("none", 1, 2)
+
+		var taskID int
+		if remove {
+			fmt.Println("Inform the ID of the task to be removed:")
+		} else {
+			fmt.Println("Inform the ID of the task to be updated:")
+		}
+		fmt.Scan(&taskID)
+
+		invalidID := sort.SearchInts(validIDs, taskID) >= len(validIDs)
+		for invalidID {
+			fmt.Println("Invalid task ID. Insert valid active task ID:")
+			fmt.Scan(&taskID)
+			invalidID = sort.SearchInts(validIDs, taskID) >= len(validIDs)
+		}
+
+		models.UpdateTask(taskID, true, remove)
 	} else {
-		fmt.Println("Inform the ID of the task to be updated:")
+		fmt.Println("There are no active tasks to be updated!")
 	}
-	fmt.Scan(&taskID)
-	models.UpdateTask(taskID, true, remove)
 }
 
 // ShowTaskDetails lists tasks and select the one to have its detals shown
@@ -115,29 +134,29 @@ func ShowTasksByOrder(orderOption int) {
 
 // ShowFilteredOptions asks user to input the filters value
 func ShowFilteredOptions(filterKind int) {
-	var filterChoice string
 	switch filterKind {
 	case 1: // Deadline
 		fmt.Println("Input deadline date (dd/MM/yyyy):")
-		fmt.Scan(&filterChoice)
+		deadline := getValidDate()
 		fmt.Println("")
-		models.DisplayByFilter(filterKind, filterChoice)
+		models.DisplayByFilter(filterKind, deadline)
 	case 2: //Priority
 		fmt.Println("Input priority (1 to 10):")
-		fmt.Scan(&filterChoice)
+		priority := getValidPriority()
 		fmt.Println("")
-		models.DisplayByFilter(filterKind, filterChoice)
+		models.DisplayByFilter(filterKind, strconv.Itoa(priority))
 	case 3: // Added time
 		fmt.Println("Input creation date (dd/MM/yyyy):")
-		fmt.Scan(&filterChoice)
+		createdAt := getValidDate()
 		fmt.Println("")
-		models.DisplayByFilter(filterKind, filterChoice)
+		models.DisplayByFilter(filterKind, createdAt)
 	default:
 		fmt.Println("This filter doesn't exist")
 	}
 }
 
 // AUXILIAR FUNCTIONS:
+
 func getValidPriority() int {
 	var priority int
 	fmt.Scan(&priority)
@@ -150,58 +169,53 @@ func getValidPriority() int {
 	return priority
 }
 
-func getValidDeadline() string {
+func getValidDate() string {
 	var deadline string
 	var invalidDeadline bool
 	fmt.Scan(&deadline)
 	date := strings.Split(deadline, "/")
 
-	invalidDeadline, day := checkDay(strconv.Atoi(date[0]))
-	invalidDeadline = checkMonth(day, date[1])
-	invalidDeadline = checkYear(strconv.Atoi(date[2]))
+	if len(date) == 3 {
+		invalidDeadline = checkDate(date)
+	} else {
+		invalidDeadline = true
+	}
 
 	for invalidDeadline {
 		fmt.Println("Invalid deadline. Insert a valid date (dd/MM/yyyy)")
 		fmt.Scan(&deadline)
-		date := strings.Split(deadline, "/")
+		date = strings.Split(deadline, "/")
 
-		invalidDeadline, day = checkDay(strconv.Atoi(date[0]))
-		invalidDeadline = checkMonth(day, date[1])
-		invalidDeadline = checkYear(strconv.Atoi(date[2]))
+		if len(date) == 3 {
+			invalidDeadline = checkDate(date)
+		} else {
+			invalidDeadline = true
+		}
 	}
 	return deadline
 }
 
-func checkDay(day int, err error) (bool, int) {
-	if err != nil || day < 1 || day > 31 {
-		return true, 0
+// Returns true if invalid date
+func checkDate(date []string) bool {
+	dateDay, errDay := strconv.Atoi(date[0])
+	dateMonth, errMonth := strconv.Atoi(date[1])
+	dateYear, errYear := strconv.Atoi(date[2])
+	if errDay != nil {
+		panic("Day convertion error:" + errDay.Error())
 	}
-	return false, day
-}
-
-func checkMonth(day int, monthStr string) bool {
-	// checkDay returns day = 0 if invalid day
-	if day != 0 {
-		month, err := strconv.Atoi(monthStr)
-		if err != nil || month < 1 || month > 12 {
-			return true
-		}
-		longerMonths := []int{1, 3, 5, 7, 8, 10, 12}
-		normalMonths := []int{4, 6, 9, 11}
-		if month == 2 && (day != 28 && day != 29) {
-			return true
-		} else if sort.SearchInts(longerMonths, month) >= len(longerMonths) {
-			return true
-		} else if sort.SearchInts(normalMonths, month) >= len(normalMonths) {
-			return true
-		}
-		return false
+	if errMonth != nil {
+		panic("Month convertion error:" + errMonth.Error())
 	}
-	return true
-}
-
-func checkYear(year int, err error) bool {
-	if err != nil || year < 1 || year > 9999 {
+	if errYear != nil {
+		panic("Year convertion error:" + errYear.Error())
+	}
+	if dateDay < 1 || dateDay > 31 {
+		return true
+	}
+	if dateMonth < 1 || dateMonth > 12 {
+		return true
+	}
+	if dateYear < 2020 || dateYear > 2999 {
 		return true
 	}
 	return false
@@ -211,17 +225,22 @@ func getValidDependency() string {
 	validIDs := models.GetActiveTaskIDs()
 	var dependency int
 
-	fmt.Println("List of active tasks:")
-	models.ShowTasksByStatus("none", 1, 2)
-	fmt.Println("")
-	fmt.Println("Insert ID of task depended on:")
-	fmt.Scan(&dependency)
-	invalidDependency := sort.SearchInts(validIDs, dependency) >= len(validIDs)
-
-	for invalidDependency {
-		fmt.Println("Invalid active task ID. Insert valid active task ID:")
+	if len(validIDs) != 0 {
+		fmt.Println("List of active tasks:")
+		models.ShowTasksByStatus("none", 1, 2)
+		fmt.Println("")
+		fmt.Println("Insert ID of task depended on:")
 		fmt.Scan(&dependency)
-		invalidDependency = sort.SearchInts(validIDs, dependency) >= len(validIDs)
+		invalidDependency := sort.SearchInts(validIDs, dependency) >= len(validIDs)
+
+		for invalidDependency {
+			fmt.Println("Invalid task ID. Insert valid active task ID:")
+			fmt.Scan(&dependency)
+			invalidDependency = sort.SearchInts(validIDs, dependency) >= len(validIDs)
+		}
+	} else {
+		fmt.Println("There are no active tasks to be depended on!")
+		dependency = 0
 	}
 
 	return strconv.Itoa(dependency)

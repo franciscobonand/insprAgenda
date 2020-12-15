@@ -18,7 +18,7 @@ func DisplayMainMenu() {
 		"1- Visualize task board\n" +
 		"2- Manage tasks\n" +
 		"3- Filter tasks\n" +
-		"4- Show deliveries calendar\n" +
+		// "4- Show deliveries calendar\n" +
 		"0- Exit\n")
 }
 
