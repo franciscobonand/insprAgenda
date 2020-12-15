@@ -1,10 +1,13 @@
 package main
 
 import (
+	// lib for postgre usage
 	"fmt"
 	"insprTaskScheduler/insprAgenda/models"
 	"insprTaskScheduler/insprAgenda/routes"
 	"os"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -23,6 +26,9 @@ func main() {
 			models.DisplayManagementMenu()
 			routes.HandleManagementChoice()
 		case 3:
+			models.DisplayFilterMenu()
+			routes.HandleFilterChoice()
+		case 4:
 			models.DisplayCalendar()
 		case 0:
 			fmt.Println("Shutting down...")

@@ -94,15 +94,39 @@ func ShowTaskDetails() {
 	models.DisplayTask(taskID)
 }
 
-// ShowTasksByFilter tell method ShowTasksByStatus which filter to use
-func ShowTasksByFilter(filterOption int) {
-	switch filterOption {
+// ShowTasksByOrder tells method ShowTasksByStatus which filter to use
+func ShowTasksByOrder(orderOption int) {
+	switch orderOption {
 	case 1:
 		models.ShowTasksByStatus("dl", 1, 2, 3, 4)
 	case 2:
 		models.ShowTasksByStatus("prt", 1, 2, 3, 4)
 	case 3:
 		models.ShowTasksByStatus("at", 1, 2, 3, 4)
+	default:
+		fmt.Println("This order option doesn't exist")
+	}
+}
+
+// ShowFilteredOptions asks user to input the filters value
+func ShowFilteredOptions(filterKind int) {
+	var filterChoice string
+	switch filterKind {
+	case 1: // Deadline
+		fmt.Println("Input deadline date (dd/MM/yyyy):")
+		fmt.Scan(&filterChoice)
+		fmt.Println("")
+		models.DisplayByFilter(filterKind, filterChoice)
+	case 2: //Priority
+		fmt.Println("Input priority (1 to 10):")
+		fmt.Scan(&filterChoice)
+		fmt.Println("")
+		models.DisplayByFilter(filterKind, filterChoice)
+	case 3: // Added time
+		fmt.Println("Input creation date (dd/MM/yyyy):")
+		fmt.Scan(&filterChoice)
+		fmt.Println("")
+		models.DisplayByFilter(filterKind, filterChoice)
 	default:
 		fmt.Println("This filter doesn't exist")
 	}

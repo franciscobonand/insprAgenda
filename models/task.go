@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"fmt"
 	"insprTaskScheduler/insprAgenda/db"
 	"sort"
@@ -39,9 +40,9 @@ func CreateTask(title, description string, priority, timeEstimate int, deadline 
 
 // ShowTasksByStatus recieves a list of status and displays all tasks
 // with those status
-func ShowTasksByStatus(filter string, statusList ...int) {
+func ShowTasksByStatus(order string, statusList ...int) {
 	statusStr := strings.Trim(strings.Replace(fmt.Sprint(statusList), " ", ",", -1), "[]")
-	query := generateQuery(filter, statusStr)
+	query := generateQuery(order, statusStr)
 
 	db := db.ConnectWithDB()
 
@@ -50,83 +51,7 @@ func ShowTasksByStatus(filter string, statusList ...int) {
 		panic("Error while selecting tasks from DB:" + err.Error())
 	}
 
-	var toDoTasks []Task
-	var workingTasks []Task
-	var closedTasks []Task
-	var doneTasks []Task
-
-	for tasks.Next() {
-		var ID, priority, status, effort int
-		var title, description, dependency string
-		var deadline, workstart, workend, creationdate, lastupdate time.Time
-
-		err = tasks.Scan(&ID, &priority, &status, &title, &description, &dependency, &deadline,
-			&workstart, &workend, &creationdate, &lastupdate, &effort)
-		if err != nil {
-			panic("Error while scanning DB:" + err.Error())
-		}
-
-		auxTask := Task{
-			ID:       ID,
-			Title:    title,
-			Priority: priority,
-			Status:   status,
-			Deadline: deadline,
-		}
-
-		switch status {
-		case 2:
-			workingTasks = append(workingTasks, auxTask)
-		case 3:
-			closedTasks = append(closedTasks, auxTask)
-		case 4:
-			doneTasks = append(doneTasks, auxTask)
-		default:
-			toDoTasks = append(toDoTasks, auxTask)
-		}
-	}
-
-	if sort.SearchInts(statusList, 1) < len(statusList) {
-		fmt.Println("TO DO:")
-		if len(toDoTasks) > 0 {
-			for _, item := range toDoTasks {
-				printTaskInfo(item)
-			}
-		} else {
-			fmt.Println("No tasks with this status")
-		}
-	}
-	if sort.SearchInts(statusList, 2) < len(statusList) {
-		fmt.Println("WORKING:")
-		if len(workingTasks) > 0 {
-			for _, item := range workingTasks {
-				printTaskInfo(item)
-			}
-		} else {
-			fmt.Println("No tasks with this status")
-		}
-	}
-	if sort.SearchInts(statusList, 3) < len(statusList) {
-		fmt.Println("CLOSED:")
-		if len(closedTasks) > 0 {
-			for _, item := range closedTasks {
-				printTaskInfo(item)
-			}
-		} else {
-			fmt.Println("No tasks with this status")
-		}
-	}
-	if sort.SearchInts(statusList, 4) < len(statusList) {
-		fmt.Println("DONE:")
-		if len(doneTasks) > 0 {
-			for _, item := range doneTasks {
-				printTaskInfo(item)
-			}
-		} else {
-			fmt.Println("No tasks with this status")
-		}
-	}
-	fmt.Println("")
+	printDBRows(tasks, statusList)
 }
 
 // UpdateTask can move the task on the board if it doesn't have pendent dependency
@@ -222,14 +147,51 @@ func DisplayTask(taskID int) {
 		"\nTime spent on task: " + timeSpent)
 }
 
-// Auxiliar functions:
+// DisplayByFilter displays filtered tasks by status
+func DisplayByFilter(filterKind int, filter string) {
+	db := db.ConnectWithDB()
+	allStatus := []int{1, 2, 3, 4}
+
+	switch filterKind {
+	case 1: // Deadline
+		date := formatDate(filter)
+		tasks, err := db.Query("select * from tasks where deadline='" + date + "'")
+		if err != nil {
+			panic("Error while selecting task from DB:" + err.Error())
+		}
+
+		printDBRows(tasks, allStatus)
+
+	case 2: //Priority
+		tasks, err := db.Query("select * from tasks where priority=" + filter)
+		if err != nil {
+			panic("Error while selecting task from DB:" + err.Error())
+		}
+
+		printDBRows(tasks, allStatus)
+
+	case 3: // Added time
+		date := formatDate(filter)
+		tasks, err := db.Query("select * from tasks where creationdate='" + date + "'")
+		if err != nil {
+			panic("Error while selecting task from DB:" + err.Error())
+		}
+
+		printDBRows(tasks, allStatus)
+
+	default:
+		fmt.Println("Filter error")
+	}
+}
+
+// AUXILIAR/CONTEXT FUNCTIONS:
 
 func printTaskInfo(task Task) {
 	id := strconv.Itoa(task.ID)
 	priority := strconv.Itoa(task.Priority)
 	fmt.Println("ID: " + id + " | Title: " + task.Title +
 		" | Priority: " + priority + " | Deadline: " + task.Deadline.Format("02/01/2006") +
-		" | Created: " + task.CreationDate.Format("02/01/2006"))
+		" | Creation date: " + task.CreationDate.Format("02/01/2006"))
 }
 
 func getTimeSpent(start, end time.Time) string {
@@ -280,4 +242,90 @@ func checkForDependency(dependency string) bool {
 		return false
 	}
 	return false
+}
+
+func printDBRows(tasks *sql.Rows, statusList []int) {
+	var toDoTasks []Task
+	var workingTasks []Task
+	var closedTasks []Task
+	var doneTasks []Task
+
+	for tasks.Next() {
+		var ID, priority, status, effort int
+		var title, description, dependency string
+		var deadline, workstart, workend, creationdate, lastupdate time.Time
+
+		err := tasks.Scan(&ID, &priority, &status, &title, &description, &dependency, &deadline,
+			&workstart, &workend, &creationdate, &lastupdate, &effort)
+		if err != nil {
+			panic("Error while scanning DB:" + err.Error())
+		}
+
+		auxTask := Task{
+			ID:           ID,
+			Title:        title,
+			Priority:     priority,
+			Status:       status,
+			Deadline:     deadline,
+			CreationDate: creationdate,
+		}
+
+		switch status {
+		case 2:
+			workingTasks = append(workingTasks, auxTask)
+		case 3:
+			closedTasks = append(closedTasks, auxTask)
+		case 4:
+			doneTasks = append(doneTasks, auxTask)
+		default:
+			toDoTasks = append(toDoTasks, auxTask)
+		}
+	}
+
+	if sort.SearchInts(statusList, 1) < len(statusList) {
+		fmt.Println("TO DO:")
+		if len(toDoTasks) > 0 {
+			for _, item := range toDoTasks {
+				printTaskInfo(item)
+			}
+		} else {
+			fmt.Println("No tasks with this status")
+		}
+	}
+	if sort.SearchInts(statusList, 2) < len(statusList) {
+		fmt.Println("WORKING:")
+		if len(workingTasks) > 0 {
+			for _, item := range workingTasks {
+				printTaskInfo(item)
+			}
+		} else {
+			fmt.Println("No tasks with this status")
+		}
+	}
+	if sort.SearchInts(statusList, 3) < len(statusList) {
+		fmt.Println("CLOSED:")
+		if len(closedTasks) > 0 {
+			for _, item := range closedTasks {
+				printTaskInfo(item)
+			}
+		} else {
+			fmt.Println("No tasks with this status")
+		}
+	}
+	if sort.SearchInts(statusList, 4) < len(statusList) {
+		fmt.Println("DONE:")
+		if len(doneTasks) > 0 {
+			for _, item := range doneTasks {
+				printTaskInfo(item)
+			}
+		} else {
+			fmt.Println("No tasks with this status")
+		}
+	}
+	fmt.Println("")
+}
+
+func formatDate(date string) string {
+	dateParts := strings.Split(date, "/")
+	return dateParts[2] + "-" + dateParts[1] + "-" + dateParts[0]
 }

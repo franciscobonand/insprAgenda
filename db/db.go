@@ -9,7 +9,7 @@ import (
 
 // ConnectWithDB returns a reference for the SQL database
 func ConnectWithDB() *sql.DB {
-	connection := "user=postgres dbname=insprTaskManager " +
+	connection := "user=postgres dbname=insprtaskmanager " +
 		"password=postgres123 " +
 		"host=localhost sslmode=disable"
 

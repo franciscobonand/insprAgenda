@@ -31,11 +31,28 @@ func HandleVisualizationChoice() {
 
 	switch userCommand {
 	case 1: // Deadline
-		controllers.ShowTasksByFilter(1)
+		controllers.ShowTasksByOrder(1)
 	case 2: // Priority
-		controllers.ShowTasksByFilter(2)
+		controllers.ShowTasksByOrder(2)
 	case 3: // Added time
-		controllers.ShowTasksByFilter(3)
+		controllers.ShowTasksByOrder(3)
+	default:
+		fmt.Println("Returning to Main Menu...")
+	}
+}
+
+// HandleFilterChoice handles the input given by the user in this menu
+func HandleFilterChoice() {
+	var userCommand int
+	fmt.Scan(&userCommand)
+
+	switch userCommand {
+	case 1: // Deadline
+		controllers.ShowFilteredOptions(1)
+	case 2: // Priority
+		controllers.ShowFilteredOptions(2)
+	case 3: // Added time
+		controllers.ShowFilteredOptions(3)
 	default:
 		fmt.Println("Returning to Main Menu...")
 	}
