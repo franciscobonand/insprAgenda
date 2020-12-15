@@ -41,6 +41,7 @@ func CreateTask(title, description string, priority, timeEstimate int, deadline 
 // ShowTasksByStatus recieves a list of status and displays all tasks
 // with those status
 func ShowTasksByStatus(order string, statusList ...int) {
+	// Joins array of ints into a string of numbers separeted by ','
 	statusStr := strings.Trim(strings.Replace(fmt.Sprint(statusList), " ", ",", -1), "[]")
 	query := generateQuery(order, statusStr)
 
@@ -182,6 +183,32 @@ func DisplayByFilter(filterKind int, filter string) {
 	default:
 		fmt.Println("Filter error")
 	}
+}
+
+// GetActiveTaskIDs returns slice of ints with ids of the active tasks (To Do/Working)
+func GetActiveTaskIDs() []int {
+	var ids []int
+	db := db.ConnectWithDB()
+
+	tasks, err := db.Query("select * from tasks where status in (1,2) order by id asc")
+	if err != nil {
+		panic("Error while selecting tasks from DB:" + err.Error())
+	}
+
+	for tasks.Next() {
+		var ID, priority, status, effort int
+		var title, description, dependency string
+		var deadline, workstart, workend, creationdate, lastupdate time.Time
+
+		err := tasks.Scan(&ID, &priority, &status, &title, &description, &dependency, &deadline,
+			&workstart, &workend, &creationdate, &lastupdate, &effort)
+		if err != nil {
+			panic("Error while scanning DB:" + err.Error())
+		}
+
+		ids = append(ids, ID)
+	}
+	return ids
 }
 
 // AUXILIAR/CONTEXT FUNCTIONS:

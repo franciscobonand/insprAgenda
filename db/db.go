@@ -9,6 +9,7 @@ import (
 
 // ConnectWithDB returns a reference for the SQL database
 func ConnectWithDB() *sql.DB {
+	// DB configs are defined while creating the docker container (install.sh)
 	connection := "user=postgres dbname=postgres " +
 		"password=postgres123 " +
 		"host=localhost sslmode=disable"

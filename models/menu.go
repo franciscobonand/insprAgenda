@@ -6,7 +6,9 @@ import (
 
 // InitiateTaskManager prints a welcoming message to the user
 func InitiateTaskManager() {
-	fmt.Println("Brief description of the scheduler")
+	fmt.Println("\nWelcome to Inspr's Task Manager v1.0!\n" +
+		"It's recomended to read the README file for more details\n" +
+		"on how to use and implemented functionalities")
 }
 
 // DisplayMainMenu displays the main actions a user can do
