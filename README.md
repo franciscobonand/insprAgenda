@@ -6,16 +6,16 @@
 This is an application that implements a simple Kanban board  using CLI as it's frontend.  
 
 ## Install and execute
-First of all, you must have **Golang and Docker installed on your machine**.
+First of all, you must have **Golang and Docker installed on your machine**, and **admin permissions to run the following commands**.
 After cloning the git repository, git bash to **insprAgenda** folder and run the following command to pull the official PostgreSQL image from Docker Hub and configure the database used by Insper Task Manager. **Remember, you only have to run this ONCE**:
 ```
 bash install.sh
 ```
-Having installed and created the container, run the following command (still in the same insprAgenda repository) to execute Inspr Task Manager. **You should do this every time you want to run the application**:
+Having installed and created the container, run the following command (still in the same insprAgenda repository) to execute Inspr Task Manager. **You should do this every time you want to start the application**:
 ```
 bash exec.sh
 ```  
-  
+If you already have PostgreSQL installed on your computer, make sure that it (and it's servers) are off before executing the command above, otherwise a server/port error might happen.
   
 ## Details on how it works 
 - A task can only move foward on the board (i.e. it's not possible to return a Working task back to To Do)  

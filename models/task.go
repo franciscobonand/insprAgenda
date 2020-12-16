@@ -220,8 +220,10 @@ func printTaskInfo(task Task) {
 	w := tabwriter.NewWriter(os.Stdout, 4, 0, padding, ' ', tabwriter.Debug)
 	id := strconv.Itoa(task.ID)
 	priority := strconv.Itoa(task.Priority)
-	fmt.Fprintf(w, "|ID: %s\tTitle: %s\tPriority: %s\tDeadline: %s\tCreation date: %s|\n",
-		id, task.Title, priority, task.Deadline.Format("02/01/2006"), task.CreationDate.Format("02/01/2006"))
+	fmt.Fprintf(w, "|ID:\tTitle:\tPriority:\tDeadline:\tCreation date:\n")
+	fmt.Fprintf(w, "|%s\t%s\t%s\t%s\t%s\n",
+		id, strings.Split(task.Title, "\r")[0], priority, task.Deadline.Format("02/01/2006"),
+		task.CreationDate.Format("02/01/2006"))
 	w.Flush()
 }
 
@@ -324,7 +326,7 @@ func printDBRows(tasks *sql.Rows, statusList []int) {
 		}
 	}
 	if sort.SearchInts(statusList, 2) < len(statusList) {
-		fmt.Println("|WORKING|:")
+		fmt.Println("\n|WORKING|:")
 		if len(workingTasks) > 0 {
 			for _, item := range workingTasks {
 				printTaskInfo(item)
@@ -334,7 +336,7 @@ func printDBRows(tasks *sql.Rows, statusList []int) {
 		}
 	}
 	if sort.SearchInts(statusList, 3) < len(statusList) {
-		fmt.Println("|CLOSED|:")
+		fmt.Println("\n|CLOSED|:")
 		if len(closedTasks) > 0 {
 			for _, item := range closedTasks {
 				printTaskInfo(item)
@@ -344,7 +346,7 @@ func printDBRows(tasks *sql.Rows, statusList []int) {
 		}
 	}
 	if sort.SearchInts(statusList, 4) < len(statusList) {
-		fmt.Println("|DONE|:")
+		fmt.Println("\n|DONE|:")
 		if len(doneTasks) > 0 {
 			for _, item := range doneTasks {
 				printTaskInfo(item)
