@@ -6,6 +6,7 @@
 This is an application that implements a simple Kanban board  using CLI as it's frontend.  
 
 ## Install and execute
+First of all, you must have **Golang and Docker installed on your machine**.
 After cloning the git repository, git bash to **insprAgenda** folder and run the following command to pull the official PostgreSQL image from Docker Hub and configure the database used by Insper Task Manager. **Remember, you only have to run this ONCE**:
 ```
 bash install.sh
