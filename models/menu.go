@@ -7,13 +7,14 @@ import (
 // InitiateTaskManager prints a welcoming message to the user
 func InitiateTaskManager() {
 	fmt.Println("\nWelcome to Inspr's Task Manager v1.0!\n" +
-		"It's recomended to read the README file for more details\n" +
-		"on how to use and implemented functionalities")
+		"It's higly recomended to read the README file for\n" +
+		"more details on how to use it and implemented functionalities")
 }
 
 // DisplayMainMenu displays the main actions a user can do
 func DisplayMainMenu() {
-	fmt.Println("\nMAIN MENU\n" +
+	fmt.Println("      _________________" +
+		"\n     |    MAIN MENU    |\n" +
 		"Please select one of the following:\n" +
 		"1- Visualize task board\n" +
 		"2- Manage tasks\n" +
@@ -24,7 +25,8 @@ func DisplayMainMenu() {
 
 // DisplayVisualizationMenu displays options for visualizing the board
 func DisplayVisualizationMenu() {
-	fmt.Println("\nVISUALIZATION MENU\n" +
+	fmt.Println("       __________________" +
+		"\n      |VISUALIZATION MENU|\n" +
 		"Tasks will be separetad by their status\n" +
 		"Select desired ordering:\n" +
 		"1- By Deadline\n" +
@@ -35,7 +37,8 @@ func DisplayVisualizationMenu() {
 
 // DisplayManagementMenu displays main actions to manage the board
 func DisplayManagementMenu() {
-	fmt.Println("\nMANAGEMENT MENU\n" +
+	fmt.Println("      _______________" +
+		"\n     |MANAGEMENT MENU|\n" +
 		"Select desired action:\n" +
 		"1- Create task\n" +
 		"2- Remove task\n" +
@@ -46,7 +49,8 @@ func DisplayManagementMenu() {
 
 // DisplayFilterMenu displays options for showing tasks by filter
 func DisplayFilterMenu() {
-	fmt.Println("\nFILTER  MENU\n" +
+	fmt.Println("         ____________" +
+		"\n        |FILTER  MENU|\n" +
 		"Tasks will be separetad by their status\n" +
 		"Select desired filter:\n" +
 		"1- By Deadline\n" +

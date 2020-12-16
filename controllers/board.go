@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"insprTaskScheduler/insprAgenda/models"
 	"os"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -17,8 +18,10 @@ func GenerateNewTask() {
 	var timeEstimate, haveDependencies int
 
 	input := bufio.NewReader(os.Stdin)
-	// Skips '\n' originated from previous Scan
-	input.ReadString('\n')
+	// Skips '\n' originated from previous Scan on Windows
+	if runtime.GOOS == "windows" {
+		input.ReadString('\n')
+	}
 
 	fmt.Println("Task title:")
 	title, err := input.ReadString('\n')
@@ -239,7 +242,7 @@ func getValidDependency() string {
 			invalidDependency = sort.SearchInts(validIDs, dependency) >= len(validIDs)
 		}
 	} else {
-		fmt.Println("There are no active tasks to be depended on!")
+		fmt.Println("There are no active tasks to depend on!")
 		dependency = 0
 	}
 

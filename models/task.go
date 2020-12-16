@@ -4,9 +4,11 @@ import (
 	"database/sql"
 	"fmt"
 	"insprTaskScheduler/insprAgenda/db"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
+	"text/tabwriter"
 	"time"
 )
 
@@ -214,11 +216,13 @@ func GetActiveTaskIDs() []int {
 // AUXILIAR/CONTEXT FUNCTIONS:
 
 func printTaskInfo(task Task) {
+	const padding = 3
+	w := tabwriter.NewWriter(os.Stdout, 4, 0, padding, ' ', tabwriter.Debug)
 	id := strconv.Itoa(task.ID)
 	priority := strconv.Itoa(task.Priority)
-	fmt.Println("ID: " + id + " | Title: " + task.Title +
-		" | Priority: " + priority + " | Deadline: " + task.Deadline.Format("02/01/2006") +
-		" | Creation date: " + task.CreationDate.Format("02/01/2006"))
+	fmt.Fprintf(w, "|ID: %s\tTitle: %s\tPriority: %s\tDeadline: %s\tCreation date: %s|\n",
+		id, task.Title, priority, task.Deadline.Format("02/01/2006"), task.CreationDate.Format("02/01/2006"))
+	w.Flush()
 }
 
 func getTimeSpent(start, end time.Time) string {
@@ -310,7 +314,7 @@ func printDBRows(tasks *sql.Rows, statusList []int) {
 	}
 
 	if sort.SearchInts(statusList, 1) < len(statusList) {
-		fmt.Println("\nTO DO:")
+		fmt.Println("|TO DO|:")
 		if len(toDoTasks) > 0 {
 			for _, item := range toDoTasks {
 				printTaskInfo(item)
@@ -320,7 +324,7 @@ func printDBRows(tasks *sql.Rows, statusList []int) {
 		}
 	}
 	if sort.SearchInts(statusList, 2) < len(statusList) {
-		fmt.Println("\nWORKING:")
+		fmt.Println("|WORKING|:")
 		if len(workingTasks) > 0 {
 			for _, item := range workingTasks {
 				printTaskInfo(item)
@@ -330,7 +334,7 @@ func printDBRows(tasks *sql.Rows, statusList []int) {
 		}
 	}
 	if sort.SearchInts(statusList, 3) < len(statusList) {
-		fmt.Println("\nCLOSED:")
+		fmt.Println("|CLOSED|:")
 		if len(closedTasks) > 0 {
 			for _, item := range closedTasks {
 				printTaskInfo(item)
@@ -340,7 +344,7 @@ func printDBRows(tasks *sql.Rows, statusList []int) {
 		}
 	}
 	if sort.SearchInts(statusList, 4) < len(statusList) {
-		fmt.Println("\nDONE:")
+		fmt.Println("|DONE|:")
 		if len(doneTasks) > 0 {
 			for _, item := range doneTasks {
 				printTaskInfo(item)
